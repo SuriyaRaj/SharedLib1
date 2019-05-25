@@ -1,20 +1,22 @@
-@Library('shared_lib_1')_
+@Library('Devops')_
 node(label:'master') {
    def mvnHome
    stage('Preparation') { // for display purposes
       // Get some code from a GitHub repository
-      git 'https://github.com/Haju123/MVC.git'
+      git 'https://github.com/SuriyaRaj/MVC.git'
       // Get the Maven tool. 
       // ** NOTE: This 'M3' Maven tool must be configured
       // **       in the global configuration.           
-     mvnHome = tool 'M3_Home'
+     mvnHome = tool 'MAVEN_HOME'
    }
 
   stage('Build'){
-   withSonarQubeEnv('Sonar') {
-     sh "'${mvnHome}/bin/mvn' clean install sonar:sonar -Dsonar.host.url=http://104.43.255.181  -Dsonar.login=cd54cbeeec7893946b3bba8d0ef1fd831e3222f6"
+   withSonarQubeEnv('SonarQube') {
+    sh "'${mvnHome}/bin/mvn' clean install sonar:sonar -Dmaven.test.failure.ignore clean package  -Dsonar.host.url=http://23.96.41.202:9000/   -Dsonar.login=6fe03b350d2b961468e5d1fc5866c4d7ad11ce56"
    } 
 }
+   
+  
    
    stage('Notify')
    {
@@ -27,7 +29,7 @@ node(label:'master') {
    } 
    
    stage('Sonar Quality gate')
-   {   withSonarQubeEnv('Sonar') { 
+   {   withSonarQubeEnv('SonarQube') { 
       timeout(time: 1, unit: 'HOURS') { 
            def qg = waitForQualityGate() 
            if (qg.status != 'OK') {
