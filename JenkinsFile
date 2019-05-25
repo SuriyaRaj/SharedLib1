@@ -39,7 +39,13 @@ node(label:'master') {
    }
    stage('Build docker image for war file')
    {
-      sh "docker build -t hajira/project:${BUILD_NUMBER} ."
+     // sh "docker build -t hajira/project:${BUILD_NUMBER} ."
+      docker.withRegistry('https://registry.hub.docker.com','DockerHub')
+      {
+      def image = docker.build("hajira/project:${BUILD_NUMBER}")
+      image.push()
+      }
+      
    }
    
    stage('Deploy artifacts')
